@@ -1,7 +1,11 @@
-import type { Role, ItemType, Rarity, CharacterClass, EquipmentSlot, MarkerType, GuideCategory } from '@prisma/client'
-
-// Re-export Prisma enums
-export { Role, ItemType, Rarity, CharacterClass, EquipmentSlot, MarkerType, GuideCategory }
+// Type aliases (stored as strings in database, no Prisma enums)
+export type Role = 'USER' | 'ADMIN' | 'MODERATOR'
+export type ItemType = 'WEAPON' | 'HELMET' | 'ARMOR' | 'GLOVES' | 'BOOTS' | 'SHIELD' | 'NECKLACE' | 'EARRING' | 'RING' | 'CONSUMABLE' | 'MATERIAL' | 'QUEST' | 'MISC'
+export type Rarity = 'COMMON' | 'UNCOMMON' | 'RARE' | 'EPIC' | 'LEGENDARY' | 'MYTHIC'
+export type CharacterClass = 'WARRIOR' | 'NINJA' | 'SHAMAN' | 'NECROMANCER'
+export type EquipmentSlot = 'HELMET' | 'ARMOR' | 'WEAPON' | 'SHIELD' | 'GLOVES' | 'BOOTS' | 'NECKLACE' | 'EARRING' | 'RING'
+export type MarkerType = string
+export type GuideCategory = string
 
 // ==================== STATS ====================
 
