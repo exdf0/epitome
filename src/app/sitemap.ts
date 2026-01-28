@@ -134,7 +134,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let buildPages: MetadataRoute.Sitemap = []
   try {
     const builds = await prisma.build.findMany({
-      where: { isPublic: true },
+      where: { isPublished: true },
       select: { id: true, updatedAt: true },
     })
     buildPages = builds.map((build) => ({
