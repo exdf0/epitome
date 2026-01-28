@@ -1,0 +1,463 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER & AUTH ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String?   @unique
+  emailVerified DateTime?
+  name          String?
+  username      String?
+  image         String?
+  role          String    @default("USER")
+
+  // Discord OAuth fields
+  discordId     String?   @unique
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  builds        Build[]
+  votes         Vote[]
+  guides        Guide[]
+  accounts      Account[]
+  sessions      Session[]
+
+  // Trade Market
+  tradeListings TradeListing[] @relation("TradeListingSeller")
+  tradeComments TradeComment[] @relation("TradeCommentAuthor")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ==================== ITEMS ====================
+
+model Item {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+  type          String    // WEAPON, HELMET, ARMOR, etc.
+  rarity        String    // COMMON, UNCOMMON, RARE, etc.
+  level         Int       @default(1)
+  imageUrl      String?
+
+  // Is this a gear item (can be enhanced)?
+  isGear        Boolean   @default(false)
+
+  // Stats (JSON for flexibility)
+  stats         String?   // JSON: { str: 10, dex: 5, hp: 100 }
+
+  // Enhancement system (+0 to +9)
+  // Stat bonuses per + level
+  enhancementBonuses    String?   // JSON: { "1": { "attack": 5 }, "2": { "attack": 10 }, ... "9": { "attack": 45 } }
+  // Materials required for each + level
+  enhancementMaterials  String?   // JSON: { "1": [{ "itemId": "xxx", "itemName": "Iron Ore", "quantity": 5 }], ... }
+
+  // Requirements
+  requiredLevel Int?
+  requiredClass String?
+
+  // Drop info
+  dropSources   String?   // JSON
+  craftRecipe   String?   // JSON
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  buildItems    BuildItem[]
+}
+
+// ==================== CHARACTER CLASSES ====================
+
+model ClassInfo {
+  id            String    @id @default(cuid())
+  class         String    @unique  // WARRIOR, NINJA, SHAMAN, NECROMANCER
+  name          String
+  description   String
+  imageUrl      String?
+  color         String?   // hex color for the class
+
+  // Stat scaling info (JSON)
+  statScaling   String?   // JSON: { str: 2.5, dex: 1.0, int: 0.5 }
+
+  // Primary/Secondary stats
+  primaryStat   String
+  secondaryStat String?
+
+  // Gameplay info
+  difficulty    String?   // Easy, Medium, Hard
+  playstyle     String?   // JSON array: ["Tank", "Melee DPS"]
+  strengths     String?   // JSON array: ["High defense", "Strong damage"]
+  weaknesses    String?   // JSON array: ["Low mobility", "Mana intensive"]
+
+  isActive      Boolean   @default(true)
+  sortOrder     Int       @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  skills        Skill[]
+}
+
+model Skill {
+  id              String    @id @default(cuid())
+  name            String
+  slug            String    @unique
+  description     String
+  imageUrl        String?
+
+  // Skill tree position
+  tier            Int       @default(1)
+  position        Int       @default(0)
+
+  // Requirements
+  requiredLevel   Int       @default(1)
+  requiredSkillId String?
+  requiredSkill   Skill?    @relation("SkillPrerequisite", fields: [requiredSkillId], references: [id])
+  unlocksSkills   Skill[]   @relation("SkillPrerequisite")
+
+  // Scaling & effects (JSON)
+  effects         String    // JSON: { damage: 100, scaling: { str: 1.5 } }
+  maxRank         Int       @default(5)
+
+  classInfoId     String
+  classInfo       ClassInfo @relation(fields: [classInfoId], references: [id])
+
+  buildSkills     BuildSkill[]
+}
+
+// ==================== BUILDS ====================
+
+model Build {
+  id              String    @id @default(cuid())
+  title           String
+  description     String?
+  guide           String?
+  class           String    // WARRIOR, NINJA, SHAMAN, NECROMANCER
+  level           Int       @default(1)
+
+  // Tags for filtering (JSON array)
+  tags            String    @default("[]") // JSON: ["PvP", "PvE", "1v1"]
+
+  // Stats allocation (JSON)
+  statsAllocation String    @default("{}") // JSON: { vig: 100, int: 50, str: 0, dex: 0 }
+
+  // Equipment as JSON (for flexibility)
+  equipment       String?   // JSON: { HELMET: {...}, WEAPON: {...} }
+
+  // Skills allocation (JSON)
+  skillPoints     String    @default("{}") // JSON: { sword_aura: 10, berserk: 5 }
+  skillPath       String?   // path_of_body, path_of_soul, etc.
+
+  // Voting
+  upvotes         Int       @default(0)
+  downvotes       Int       @default(0)
+
+  // Visibility
+  isPublished     Boolean   @default(true)
+  isFeatured      Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
+
+  items           BuildItem[]
+  skills          BuildSkill[]
+  votes           Vote[]
+}
+
+model BuildItem {
+  id       String  @id @default(cuid())
+  slot     String  // WEAPON, HELMET, ARMOR, etc.
+
+  buildId  String
+  build    Build   @relation(fields: [buildId], references: [id], onDelete: Cascade)
+
+  itemId   String
+  item     Item    @relation(fields: [itemId], references: [id])
+
+  @@unique([buildId, slot])
+}
+
+model BuildSkill {
+  id       String  @id @default(cuid())
+  rank     Int     @default(1)
+
+  buildId  String
+  build    Build   @relation(fields: [buildId], references: [id], onDelete: Cascade)
+
+  skillId  String
+  skill    Skill   @relation(fields: [skillId], references: [id])
+
+  @@unique([buildId, skillId])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  value     Int      // 1 or -1
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  buildId   String
+  build     Build    @relation(fields: [buildId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, buildId])
+}
+
+// ==================== MOBS ====================
+
+model Mob {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  description   String?
+
+  // Core stats
+  level         Int       @default(1)
+  xpReward      Int       @default(0)
+  respawnTime   Int       @default(300)  // saniye cinsinden
+
+  // Classification
+  mobType       String    // ANIMAL, HUMANOID, UNDEAD, ELEMENTAL, BEAST
+  category      String    // GENERAL, MINI_BOSS, BOSS, TAMEABLE
+  biome         String?   // MEADOW, COAST, FOREST, FOOTHILL, RED
+
+  // Visual
+  imageUrl      String?
+
+  // Stats (JSON)
+  stats         String?   // JSON: { hp: 1000, attack: 50, defense: 30 }
+
+  // Drop list (JSON array)
+  drops         String?   // JSON: [{ itemId: "...", itemName: "...", dropRate: 0.05, rarity: "RARE" }]
+
+  // Currency drops
+  archonDropMin Int       @default(0)    // Minimum archon drop
+  archonDropMax Int       @default(0)    // Maximum archon drop
+
+  isActive      Boolean   @default(true)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  mapMarkers    MapMarker[]
+}
+
+model MobType {
+  id          String    @id @default(cuid())
+  name        String    @unique  // ANIMAL, HUMANOID, UNDEAD
+  displayName String              // "Animal", "Humanoid", "Undead"
+  createdAt   DateTime  @default(now())
+}
+
+// Gear item stats (dynamic, admin-defined)
+model GearStat {
+  id          String    @id @default(cuid())
+  name        String    @unique  // attack, defense, hp, str, etc.
+  displayName String              // "Attack", "Defense", "HP", "Strength"
+  createdAt   DateTime  @default(now())
+}
+
+// ==================== MAP ====================
+
+model MapMarker {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+
+  // Marker tipi - SPAWN_GENERAL, SPAWN_MINI_BOSS, SPAWN_BOSS, SPAWN_TAMEABLE,
+  // POI_SHRINE, POI_DOMINATION, POI_QUEST, POI_EVENT, POI_NODE, POI_DUNGEON,
+  // NPC_VENDOR, NPC_BLACKSMITH, NPC_STABLEMAN, NPC_VAULTKEEPER,
+  // NPC_FISHERMAN, NPC_MASTER_TRADITION, NPC_ARMOR_DEALER,
+  // NPC_WEAPON_DEALER, NPC_BIOLOGIST, NPC_BOTANIST, NPC_GEOLOGIST,
+  // NPC_MERCHANT, NPC_ZOOLOGIST, NPC_HYDROLOGIST, NPC_QUEST_GIVER
+  type        String
+
+  // Coordinates (piksel)
+  x           Float
+  y           Float
+
+  // Custom icon
+  iconUrl     String?
+
+  // Mob bağlantısı (spawn markerlar için)
+  mobId       String?
+  mob         Mob?      @relation(fields: [mobId], references: [id], onDelete: SetNull)
+
+  // Metadata (JSON)
+  metadata    String?   // JSON: { levelRange: { min: 10, max: 20 }, notes: "..." }
+
+  isActive    Boolean   @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// ==================== GUIDES ====================
+
+model Guide {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  content         String    // Markdown content
+  excerpt         String?
+  category        String    // BEGINNER, CLASS_GUIDE, PVP, etc.
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+
+  isPublished     Boolean   @default(false)
+  isFeatured      Boolean   @default(false)
+  viewCount       Int       @default(0)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+}
+
+// ==================== XP TABLE ====================
+
+model XpTable {
+  level       Int    @id
+  xpRequired  Int
+  totalXp     Int
+
+  // Points per level
+  statPoints  Int    @default(5)
+  skillPoints Int    @default(1)
+}
+
+model MobXp {
+  id       String  @id @default(cuid())
+  name     String
+  level    Int
+  xpReward Int
+  location String?
+}
+
+// ==================== ENCHANTMENTS ====================
+
+model Enchantment {
+  id              String   @id @default(cuid())
+  name            String                        // "Zeka Bonusu", "Güç Artışı"
+  slug            String   @unique              // "zeka-bonusu", "guc-artisi"
+  description     String?                       // Açıklama
+
+  // Değer aralığı
+  minValue        Int                           // Minimum değer (örn: 1)
+  maxValue        Int                           // Maximum değer (örn: 12)
+
+  // Hangi stat'ı etkiliyor
+  statKey         String                        // "int", "str", "dex", "vig", "attack", "defense"
+
+  // Hangi ekipman türlerine uygulanabilir (JSON array)
+  equipmentTypes  String   @default("[]")       // ["HELMET", "ARMOR", "SHIELD"]
+
+  // Görsel
+  imageUrl        String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ==================== TRADE MARKET ====================
+
+model TradeListing {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+
+  // Item being sold
+  itemId          String?                       // Reference to Item if it's a database item
+  itemName        String                        // Item name (for display)
+  itemType        String                        // WEAPON, HELMET, ARMOR, etc.
+  itemRarity      String                        // COMMON, UNCOMMON, RARE, etc.
+  itemImage       String?                       // Item image URL
+
+  // For gear items
+  isGear          Boolean  @default(false)
+  enhancementLevel Int     @default(0)          // +0 to +9
+  enchantments    String   @default("[]")       // JSON: [{ id, name, statKey, value }]
+
+  // Pricing
+  priceAmount     Int                           // Price value
+  priceCurrency   String                        // "ARCHON" or "PREMIUM"
+
+  // Status
+  status          String   @default("ACTIVE")   // ACTIVE, SOLD, CANCELLED
+  viewCount       Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  sellerId        String
+  seller          User     @relation("TradeListingSeller", fields: [sellerId], references: [id])
+  comments        TradeComment[]
+}
+
+model TradeComment {
+  id              String   @id @default(cuid())
+  content         String
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  listingId       String
+  listing         TradeListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  userId          String
+  user            User     @relation("TradeCommentAuthor", fields: [userId], references: [id])
+}

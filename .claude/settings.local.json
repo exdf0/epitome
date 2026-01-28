@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(powershell -Command \"Remove-Item -Path ''c:\\\\Users\\\\user\\\\Desktop\\\\epitome\\\\src\\\\app\\\\\\(main\\)\\\\map\\\\page.tsx'' -Force\")"
+    ]
+  }
+}

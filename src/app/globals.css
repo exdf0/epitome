@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border-primary;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-secondary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border-secondary rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-muted;
+  }
+}
+
+@layer components {
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-colors hover:border-accent-primary/50;
+  }
+}
+
+@layer utilities {
+  /* Glass effect for cards */
+  .glass {
+    @apply bg-bg-secondary/80 backdrop-blur-sm;
+  }
+
+  /* Focus ring */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 focus:ring-offset-bg-primary;
+  }
+}
+
+/* Map marker pulse animation for highlighted markers */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  }
+}
