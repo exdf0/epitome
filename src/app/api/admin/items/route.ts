@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkIsAdmin } from '@/lib/admin'
 
+export const dynamic = 'force-dynamic'
+
 // Gear types
 const gearTypes = ['WEAPON', 'HELMET', 'ARMOR', 'GLOVES', 'BOOTS', 'SHIELD', 'EARRING', 'NECKLACE', 'RING']
 

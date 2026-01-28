@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkIsAdmin } from '@/lib/admin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/admin/mob-types - Get all mob types
 export async function GET(request: NextRequest) {
   const authCheck = await checkIsAdmin()

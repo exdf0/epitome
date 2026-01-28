@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkIsAdmin } from '@/lib/admin'
 
+export const dynamic = 'force-dynamic'
+
 // PUT /api/admin/builds/[id] - Update build (publish/unpublish, etc)
 export async function PUT(
   request: NextRequest,

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkIsAdmin } from '@/lib/admin'
 
+export const dynamic = 'force-dynamic'
+
 // Helper to parse JSON fields
 const parseBuild = (build: any) => ({
   ...build,
