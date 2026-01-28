@@ -97,15 +97,15 @@ export interface MapMarker {
   mob?: {
     id: string
     name: string
-    slug: string
-    level: number
-    xpReward: number
-    respawnTime: number
-    mobType: string
-    category: string
+    slug?: string
+    level?: number
+    xpReward?: number
+    respawnTime?: number
+    mobType?: string
+    category?: string
     imageUrl?: string
-    stats: Record<string, number>
-    drops: Array<{
+    stats?: Record<string, number>
+    drops?: Array<{
       itemId: string
       itemName: string
       dropRate: number
@@ -172,21 +172,23 @@ function MarkerPopup({ marker }: { marker: MapMarker }) {
         {/* Header */}
         <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
           <h3 className="font-bold text-gray-900">{mob.name}</h3>
-          <Link
-            href={`/mobs/${mob.slug}`}
-            className="text-blue-500 hover:text-blue-700 text-sm"
-          >
-            View Details
-          </Link>
+          {mob.slug && (
+            <Link
+              href={`/mobs/${mob.slug}`}
+              className="text-blue-500 hover:text-blue-700 text-sm"
+            >
+              View Details
+            </Link>
+          )}
         </div>
 
         {/* Mob Info */}
         <div className="space-y-1 text-sm text-gray-600 mb-3">
-          <p><span className="font-medium">Type:</span> {mob.mobType}</p>
-          <p><span className="font-medium">Category:</span> {mob.category}</p>
-          <p><span className="font-medium">Level:</span> {mob.level}</p>
-          <p><span className="font-medium">XP Reward:</span> {mob.xpReward}</p>
-          <p><span className="font-medium">Respawn:</span> {formatRespawnTime(mob.respawnTime)}</p>
+          {mob.mobType && <p><span className="font-medium">Type:</span> {mob.mobType}</p>}
+          {mob.category && <p><span className="font-medium">Category:</span> {mob.category}</p>}
+          {mob.level != null && <p><span className="font-medium">Level:</span> {mob.level}</p>}
+          {mob.xpReward != null && <p><span className="font-medium">XP Reward:</span> {mob.xpReward}</p>}
+          {mob.respawnTime != null && <p><span className="font-medium">Respawn:</span> {formatRespawnTime(mob.respawnTime)}</p>}
         </div>
 
         {/* Drops */}
