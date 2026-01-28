@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(npx prisma generate:*)",
-      "Bash(powershell -Command \"Remove-Item -Path ''c:\\\\Users\\\\user\\\\Desktop\\\\epitome\\\\src\\\\app\\\\\\(main\\)\\\\map\\\\page.tsx'' -Force\")"
+      "Bash(powershell -Command \"Remove-Item -Path ''c:\\\\Users\\\\user\\\\Desktop\\\\epitome\\\\src\\\\app\\\\\\(main\\)\\\\map\\\\page.tsx'' -Force\")",
+      "Bash(npx next build)"
     ]
   }
 }

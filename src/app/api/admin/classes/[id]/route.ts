@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { checkIsAdmin } from '@/lib/auth'
+import { checkIsAdmin } from '@/lib/admin'
 
 // GET - Get single class
 export async function GET(

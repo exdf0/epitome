@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { checkIsAdmin } from '@/lib/auth'
+import { checkIsAdmin } from '@/lib/admin'
 
 // GET - List all classes
 export async function GET(request: NextRequest) {

@@ -302,7 +302,7 @@ export default function GameMap({
 
         {/* Markers */}
         {filteredMarkers.map((marker) => {
-          const isHighlighted = highlightedMobId && marker.mob?.id === highlightedMobId
+          const isHighlighted = !!(highlightedMobId && marker.mob?.id === highlightedMobId)
           return (
             <Marker
               key={marker.id}
