@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { Loader2 } from 'lucide-react'
@@ -28,7 +28,7 @@ interface MapMarker {
   mob?: any
 }
 
-export default function MapPage() {
+function MapContent() {
   const searchParams = useSearchParams()
   const mobIdFromUrl = searchParams.get('mob')
 
@@ -38,7 +38,7 @@ export default function MapPage() {
     Object.keys(MARKER_TYPES) as MarkerType[]
   )
   const [levelRange, setLevelRange] = useState<[number, number]>([1, 100])
-  const [highlightedMobId, setHighlightedMobId] = useState<string | null>(mobIdFromUrl)
+  const [highlightedMobId] = useState<string | null>(mobIdFromUrl)
 
   // Fetch markers from API
   useEffect(() => {
@@ -102,5 +102,19 @@ export default function MapPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function MapPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full h-full flex items-center justify-center bg-bg-primary">
+          <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+        </div>
+      }
+    >
+      <MapContent />
+    </Suspense>
   )
 }
