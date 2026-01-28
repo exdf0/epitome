@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/compo
 interface Drop {
   itemId: string
   itemName: string
+  itemSlug?: string
   dropRate: number
   rarity: string
 }
@@ -252,7 +253,7 @@ export default function MobDetailPage() {
                   {mob.drops.map((drop, index) => (
                     <Link
                       key={index}
-                      href={`/items/${drop.itemId}`}
+                      href={`/items/${drop.itemSlug || drop.itemId}`}
                       className="flex items-center justify-between p-3 bg-bg-tertiary rounded-lg hover:bg-bg-hover transition-colors"
                     >
                       <div className="flex items-center gap-3">

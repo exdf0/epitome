@@ -14,6 +14,7 @@ import { Search, Plus, Edit, Trash2, Loader2, X, Save } from 'lucide-react'
 interface Drop {
   itemId: string
   itemName: string
+  itemSlug?: string
   dropRate: number
   rarity: string
   imageUrl?: string
@@ -47,6 +48,7 @@ interface MobType {
 interface Item {
   id: string
   name: string
+  slug: string
   rarity: string
   type: string
   imageUrl?: string
@@ -297,6 +299,7 @@ export default function AdminMobsPage() {
       drops: [...prev.drops, {
         itemId: item.id,
         itemName: item.name,
+        itemSlug: item.slug,
         dropRate: 5,
         rarity: item.rarity,
         imageUrl: item.imageUrl
