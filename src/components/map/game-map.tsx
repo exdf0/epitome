@@ -261,7 +261,7 @@ export default function GameMap({
       }
 
       // For spawn markers with mobs, check level range
-      if (marker.type.startsWith('SPAWN_') && marker.mob) {
+      if (marker.type.startsWith('SPAWN_') && marker.mob && marker.mob.level != null) {
         if (marker.mob.level < levelRange[0] || marker.mob.level > levelRange[1]) {
           return false
         }
