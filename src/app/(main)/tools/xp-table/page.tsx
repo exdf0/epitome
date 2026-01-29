@@ -22,13 +22,14 @@ interface Mob {
   category: string
 }
 
-// XP table data (game formula)
+// XP table data (game formula: 150n² + 500)
 const xpTable = Array.from({ length: 100 }, (_, i) => {
   const level = i + 1
-  const xpRequired = Math.floor(100 * Math.pow(level, 2.5))
-  const totalXp = Array.from({ length: level }, (_, j) =>
-    Math.floor(100 * Math.pow(j + 1, 2.5))
-  ).reduce((a, b) => a + b, 0)
+  const xpRequired = 150 * level * level + 500
+  const totalXp = Array.from({ length: level }, (_, j) => {
+    const lvl = j + 1
+    return 150 * lvl * lvl + 500
+  }).reduce((a, b) => a + b, 0)
 
   return {
     level,
