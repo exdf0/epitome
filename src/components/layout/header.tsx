@@ -123,7 +123,7 @@ export function Header() {
                   <ExternalLink className="w-3 h-3" />
                   Buy Game
                 </a>
-                <a href="https://discord.gg/CTwbPnrSpy" className="text-text-muted hover:text-text-primary transition-colors">
+                <a href="https://discord.gg/3rSKhuEuts" className="text-text-muted hover:text-text-primary transition-colors">
                   Discord
                 </a>
               </div>
