@@ -106,7 +106,7 @@ export default function AdminClassesPage() {
       const response = await fetch(`/api/admin/classes?${params}`)
       if (response.ok) {
         const data = await response.json()
-        setClasses(data)
+        setClasses(data.classes || [])
       }
     } catch (error) {
       console.error('Error fetching classes:', error)
